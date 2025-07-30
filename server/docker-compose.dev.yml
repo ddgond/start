@@ -1,0 +1,45 @@
+name: ${DOCKER_PROJECT_NAME:-new-ddgond-start-project}-dev
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - '${DATABASE_PORT:-3001}:5432'
+    volumes:
+      - postgres-data-dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    attach: false
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.dev
+    environment:
+      DATABASE_URL: postgres://postgres:${DATABASE_PASSWORD}@db:5432/postgres
+      NODE_ENV: development
+      HOST_PORT: ${SERVER_PORT:-3000}
+    command: sh -c "pnpm prisma migrate deploy && pnpm prisma generate && pnpm dev"
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - /app/node_modules
+    ports:
+      - '${SERVER_PORT:-3000}:3000'
+
+volumes:
+  postgres-data-dev:

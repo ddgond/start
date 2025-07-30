@@ -1,0 +1,47 @@
+name: ${DOCKER_PROJECT_NAME:-new-ddgond-start-project}-prod
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    shm_size: 128mb
+    env_file:
+      - .env.prod
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - '${DATABASE_PORT:-3001}:5432'
+    volumes:
+      - postgres-data-prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.prod
+    environment:
+      DATABASE_URL: postgres://postgres:${DATABASE_PASSWORD}@db:5432/postgres
+      NODE_ENV: production
+      HOST_PORT: ${SERVER_PORT:-3000}
+    restart: always
+    ports:
+      - '${SERVER_PORT:-3000}:3000'
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data-prod:
