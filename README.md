@@ -9,6 +9,11 @@ cd client
 pnpm i
 ```
 
+# General Configuration
+Replace `client/public/favicon.svg` with your own favicon.
+
+Edit `client/src/lib/config.ts`, replacing the placeholder `SITE_NAME` variable with your site's name.
+
 # Development
 Ensure `server/.env.dev` is configured the way you wish to have it. Make note of the server's port.
 
@@ -19,6 +24,7 @@ If using a domain to access your development server, include it under `server.al
 Then start the frontend with `pnpm dev`.
 
 # Deployment
+Create `server/.env.prod` by copying `server/.env.dev` and making appropriate modifications.
 The backend can be deployed by running `docker:up:prod`.
 
-The frontend can be built with `pnpm build`. The output will be found in `client/dist` and can be served with any static file server.
+The frontend can be built with `pnpm build`. The output will be found in `client/dist` and can be served with any static file server. Ensure calls to `/api` are forewarded to the backend server port configured in `server/.env.prod`
