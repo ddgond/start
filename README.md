@@ -15,7 +15,7 @@ Ensure `server/.env.dev` is configured the way you wish to have it. Make note of
 Run the backend in development mode with `pnpm docker:up`.
 
 Ensure that the proxy port in `client/vite.config.ts` points to the same port you set for the backend server in `server/.env.dev`.
-If using a domain to access your development server, include it under server.allowedHosts in `client/vite.config.ts`.
+If using a domain to access your development server, include it under `server.allowedHosts` in `client/vite.config.ts`.
 Then start the frontend with `pnpm dev`.
 
 # Deployment
