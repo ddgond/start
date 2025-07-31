@@ -32,10 +32,11 @@ RUN pnpm install --frozen-lockfile --prod
 # Copy compiled output and Prisma artifacts
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
+RUN pnpm prisma generate
 EXPOSE 3000
 
 # Run one-shot migrations, then start API
-CMD ["sh", "-c", "pnpm prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "pnpm prisma migrate deploy && node dist/main.js"]
 
 # Development - copy sources and run dev server
 FROM deps AS dev
